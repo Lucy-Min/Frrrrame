@@ -1,0 +1,186 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <link rel="icon" href="images/favicon.ico">
+  <link rel="icon" type="image/svg+xml" href="images/favicon.svg">
+  <link rel="icon" type="image/png" sizes="96x96" href="images/favicon-96x96.png">
+  <link rel="apple-touch-icon" href="images/apple-touch-icon.png">
+  <link rel="manifest" href="site.webmanifest">
+
+
+  <meta name="theme-color" content="#517efb" />
+
+  <title>프레임 생성기</title>
+
+  <style>
+    html, body{ width:100%; overflow-x:clip; }
+    *{ box-sizing:border-box; }
+    body{
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+      margin:0;
+      background:#f3f4f6;
+      color:#111;
+    }
+    .wrap{
+      width:min(720px, 100%);
+      margin:24px auto;
+      padding:16px;
+      display:grid;
+      gap:16px;
+    }
+    .panel{
+      background:#fff;
+      border:1px solid #e5e7eb;
+      border-radius:16px;
+      padding:16px;
+      overflow:hidden;
+      max-width:100%;
+    }
+    h1{ font-size:22px; margin:0 0 10px; }
+    .sub{ color:#6b7280; font-size:13px; line-height:1.5; margin:0 0 14px; }
+    .grid{
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap:12px;
+    }
+    @media (max-width: 680px){
+      .grid{ grid-template-columns: 1fr; }
+    }
+    .btn{
+      width:100%;
+      padding:14px;
+      border:0;
+      border-radius:14px;
+      background:#517efb;
+      color:#fff;
+      font-size:16px;
+      font-weight:900;
+      cursor:pointer;
+      text-decoration:none;
+      display:inline-flex;
+      justify-content:center;
+      align-items:center;
+    }
+    .btn2{
+      width:100%;
+      padding:14px;
+      border:1px solid #111;
+      border-radius:14px;
+      background:#fff;
+      color:#111;
+      font-size:16px;
+      font-weight:900;
+      cursor:pointer;
+      text-decoration:none;
+      display:inline-flex;
+      justify-content:center;
+      align-items:center;
+    }
+    .meta{
+      margin-top:10px;
+      padding:12px 14px;
+      border-radius:12px;
+      background:#f1f5f9;
+      color:#0f172a;
+      font-weight:800;
+      line-height:1.5;
+      font-size:13px;
+    }
+    code{ font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; }
+    
+    .selector {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 20px;
+    padding: 24px;
+    max-width: 900px;
+    margin: 0 auto;
+  }
+
+  .gen-card {
+    display: block;
+    text-decoration: none;
+    color: inherit;
+    border-radius: 16px;
+    overflow: hidden;
+    background: #594dff;
+    box-shadow: 0 4px 14px rgba(0,0,0,0.08);
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+  }
+
+  .gen-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(0,0,0,0.12);
+  }
+
+  .gen-card img {
+    width: 100%;
+    display: block;
+    aspect-ratio: 3 / 4;
+    object-fit: cover;
+    background: #cccccc;
+  }
+
+  .gen-label {
+    padding: 12px;
+    font-size: 16px;
+    text-align: center;
+    color: #ffffff;
+  }
+
+  
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="panel">
+      <h1>프레임 생성기</h1>
+      <p class="sub">앱 안에서 사용할 생성기를 선택하세요.</p>
+      
+      <div class="meta" id="pwaHint" style="display:none;">
+        📢 브라우저 메뉴에서 <b>홈 화면에 추가</b> 또는 <b>설치</b>를 선택하시면 앱처럼 사용할 수 있습니다.
+      </div>
+
+      <main class="selector">
+        <a href="./gmap.html" class="gen-card">
+          <img src="images/example-gmap.png" alt="구글맵 생성기 예시">
+          <div class="gen-label">구글맵 프레임</div>
+        </a>
+
+        <a href="./youtube.html" class="gen-card">
+          <img src="images/example-youtube.png" alt="유튜브 생성기 예시">
+          <div class="gen-label">유튜브 프레임</div>
+        </a>
+      </main>
+
+    </div>
+  </div>
+
+
+  <script>
+    // PWA: 서비스 워커 등록
+    (function(){
+      if (!('serviceWorker' in navigator)) return;
+      window.addEventListener('load', async () => {
+        try {
+          await navigator.serviceWorker.register('./sw.js', { scope: './' });
+        } catch (_) {
+          // 등록 실패는 기능에 치명적이지 않으므로 무시
+        }
+      });
+    })();
+
+    // 설치 힌트
+    (function(){
+      const isStandalone = window.matchMedia('(display-mode: standalone)').matches || (window.navigator.standalone === true);
+      if (!isStandalone) {
+        const el = document.getElementById('pwaHint');
+        if (el) el.style.display = 'block';
+      }
+    })();
+  </script>
+</body>
+</html>

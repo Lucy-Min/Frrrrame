@@ -1,0 +1,990 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+
+  <link rel="icon" href="images/favicon.ico">
+  <link rel="icon" type="image/svg+xml" href="images/favicon.svg">
+  <link rel="icon" type="image/png" sizes="96x96" href="images/favicon-96x96.png">
+  <link rel="apple-touch-icon" href="images/apple-touch-icon.png">
+  <link rel="manifest" href="site.webmanifest">
+
+
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>googlemap_custom</title>
+  <style>
+    html,
+    body{
+      width: 100%;
+      overflow-x: clip; 
+    }
+
+    *{
+      box-sizing: border-box;
+    }
+
+    body{
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+      margin: 0;
+      background: #f3f4f6;
+      color: #111;
+    }
+
+    .wrap{
+      width: min(980px, 100%);
+      margin: 24px auto;
+      padding: 16px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+
+
+    .panel{
+      background: #fff;
+      border: 1px solid #e5e7eb;
+      border-radius: 16px;
+      padding: 16px;
+      overflow: hidden;
+      max-width: 100%;
+    }
+
+    h1{
+      font-size: 22px;
+      margin: 0 0 10px;
+    }
+
+    .sub{
+      color: #6b7280;
+      font-size: 13px;
+      line-height: 1.5;
+      margin: 0 0 14px;
+    }
+
+    label{
+      display: grid;
+      gap: 6px;
+      margin-top: 10px;
+      font-weight: 800;
+      min-width: 0;     /* iOS에서 내부 컨트롤이 밀어내는 현상 방지 */
+    }
+
+
+
+    input{
+      width: 100%;
+      max-width: 100%;
+      min-width: 0;
+      padding: 12px;
+      border: 1px solid #d1d5db;
+      border-radius: 12px;
+      font-size: 16px;
+      outline: none;
+    }
+
+    input[type="file"]{
+      width: 100%;
+      max-width: 100%;
+    }
+
+
+
+    .btn{
+      margin-top: 14px;
+      width: 100%;
+      padding: 14px;
+      border: 0;
+      border-radius: 14px;
+      background: #517efb;
+      color: #fff;
+      font-size: 18px;
+      font-weight: 900;
+      cursor: pointer;
+    }
+
+    .btn2{
+      margin-top: 10px;
+      width: 100%;
+      padding: 12px;
+      border: 1px solid #111;
+      border-radius: 14px;
+      background: #fff;
+      color: #111;
+      font-size: 16px;
+      font-weight: 900;
+      cursor: pointer;
+    }
+
+    .notice{
+      display: none;
+      margin-top: 12px;
+      padding: 12px 14px;
+      border-radius: 12px;
+      background: #f1f5f9;
+      color: #0f172a;
+      font-weight: 900;
+      line-height: 1.5;
+    }
+
+    .notice .sub2{
+      font-weight: 650;
+      color: #475569;
+      margin-top: 4px;
+    }
+
+    .previewBox{
+      background: #fff;
+      border: 1px solid #e5e7eb;
+      border-radius: 16px;
+      padding: 16px;
+      display: grid;
+      place-items: center;
+      width: 100%;
+      overflow: hidden;
+    }
+
+    canvas{
+      display: block;
+      width: min(420px, 100%);
+      height: auto;
+      background: #fff;
+      border-radius: 20px;
+      border: 1px solid #e5e7eb;
+    }
+
+    @media (max-width: 900px){
+      .wrap{
+        grid-template-columns: 1fr;
+      }
+      canvas{
+        width: min(520px, 100%);
+      }
+    }
+
+    .titleRow{
+      display: flex;
+      align-items: baseline;
+      gap: 10px;
+    }
+
+    .patchNoteLink{
+      font-size: 13px;
+      color: #6b7280;
+      text-decoration: underline;
+      font-weight: 600;
+      cursor: pointer;
+      white-space: nowrap;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .patchNoteLink:hover{
+      color: #374151;
+    }
+
+    .patchNoteLink{
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .patchNoteLink .patchIcon{
+      width: 14px !important;
+      height: 14px !important;
+      max-width: 14px !important;
+      max-height: 14px !important;
+      display: inline-block !important;
+      flex: 0 0 auto;
+    }
+
+    .topbar{
+      width:min(980px, 100%);
+      margin:18px auto 0;
+      padding:0 16px;
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+    }
+    .backLink{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      padding:10px 12px;
+      border-radius:12px;
+      border:1px solid #e5e7eb;
+      background:#fff;
+      color:#111;
+      text-decoration:none;
+      font-weight:900;
+      font-size:14px;
+    }
+    .backLink:active{ transform:translateY(1px); }
+
+  </style>
+</head>
+<body>
+  <div class="topbar">
+    <a class="backLink" href="./index.html" aria-label="처음으로">처음으로</a>
+  </div>
+
+  
+
+  <div class="wrap">
+    <div class="panel">
+      <div class="titleRow">
+        <h1>구글맵st 프레임 생성기</h1>
+        <a
+          href="https://www.notion.so/2ea05b04aa9f8060bc71e97dda32e332"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="patchNoteLink"
+          title="패치노트 보기"
+        >
+          <img src="images/icons8.svg" class="patchIcon" alt="">
+          패치노트
+        </a>
+      </div>
+      <p class="sub">사진을 업로드하면 구글맵 느낌의 이미지가 생성됩니다.</p>
+
+      <label>이미지<input id="photo" type="file" accept="image/*" /></label>
+      <label>장소명<input id="place" type="text" placeholder="예: 인천공항" /></label>
+      <label>별점 (비우면 랜덤)<input id="rating" type="text" placeholder="예: 3.4" /></label>
+      <label>리뷰수 (비우면 랜덤)<input id="reviews" type="text" placeholder="예: 58" /></label>
+      <label>카테고리 <input id="category" type="text" placeholder="예: Airport" /></label>
+
+      <button class="btn2" id="langToggle">한국어</button>
+      <button class="btn" id="gen">생성하기</button>
+      <button class="btn2" id="dl" disabled>이미지 저장</button>
+
+      <div class="notice" id="notice">
+        <div>완성!</div>
+        <div class="sub2">“이미지 저장” 버튼으로 PNG를 저장하세요.</div>
+      </div>
+    </div>
+
+    <div class="previewBox">
+      <canvas id="c" width="1080" height="1440"></canvas>
+    </div>
+  </div>
+
+<script>
+  // 언어 설정: "en" | "ko"
+  let currentLang = "en";
+
+  const I18N = {
+    en: {
+      route: "Directions",
+      call: "Call",
+      save: "Save",
+      share: "Share",
+    },
+    ko: {
+      route: "경로",
+      call: "전화",
+      save: "저장",
+      share: "공유",
+    }
+  };
+
+
+
+  const $ = (id) => document.getElementById(id);
+  const TITLE_FONT_FAMILY =
+    `"Google Sans","Product Sans",Roboto,system-ui,-apple-system,Segoe UI,sans-serif`;
+  const canvas = $("c");
+  const ctx = canvas.getContext("2d");
+
+  function clamp(n,a,b){ return Math.max(a, Math.min(b,n)); }
+  function randInt(min,max){ return Math.floor(Math.random()*(max-min+1))+min; }
+  function randRating(){ return (Math.round((Math.random()*2 + 2.8)*10)/10).toFixed(1); }
+
+  async function loadImageFromFile(file){
+    const url = URL.createObjectURL(file);
+    const img = new Image();
+    img.crossOrigin = "anonymous";
+    await new Promise((resolve,reject)=>{
+      img.onload = resolve;
+      img.onerror = ()=>reject(new Error("이미지 로드 실패"));
+      img.src = url;
+    });
+    return img;
+  }
+
+
+  function fitCoverAnchored(imgW,imgH, boxW,boxH, ax=0.5, ay=1.0){
+    const imgRatio = imgW/imgH;
+    const boxRatio = boxW/boxH;
+
+    let sw, sh, sx, sy;
+
+    if (imgRatio > boxRatio){
+      sh = imgH;
+      sw = imgH * boxRatio;
+      sx = (imgW - sw) * ax;
+      sy = 0;
+    } else {
+      sw = imgW;
+      sh = imgW / boxRatio;
+      sx = 0;
+      sy = (imgH - sh) * ay;
+    }
+
+    sx = clamp(sx, 0, Math.max(0, imgW - sw));
+    sy = clamp(sy, 0, Math.max(0, imgH - sh));
+
+    return { sx, sy, sw, sh };
+  }
+
+  function roundRectPath(ctx,x,y,w,h,r){
+    const rr = Math.min(r, w/2, h/2);
+    ctx.beginPath();
+    ctx.moveTo(x+rr,y);
+    ctx.arcTo(x+w,y, x+w,y+h, rr);
+    ctx.arcTo(x+w,y+h, x,y+h, rr);
+    ctx.arcTo(x,y+h, x,y, rr);
+    ctx.arcTo(x,y, x+w,y, rr);
+    ctx.closePath();
+  }
+
+  function topRoundRectPath(ctx,x,y,w,h,r){
+    const rr = Math.min(r, w/2, h);
+    ctx.beginPath();
+    ctx.moveTo(x, y+rr);
+    ctx.arcTo(x,y, x+rr,y, rr);
+    ctx.lineTo(x+w-rr, y);
+    ctx.arcTo(x+w,y, x+w,y+rr, rr);
+    ctx.lineTo(x+w, y+h);
+    ctx.lineTo(x, y+h);
+    ctx.closePath();
+  }
+
+  function fillTopRoundRect(x,y,w,h,r,fill){
+    ctx.save();
+    topRoundRectPath(ctx,x,y,w,h,r);
+    ctx.fillStyle = fill;
+    ctx.fill();
+    ctx.restore();
+  }
+
+  function fillRoundRect(x,y,w,h,r,fill){
+    ctx.save();
+    roundRectPath(ctx,x,y,w,h,r);
+    ctx.fillStyle = fill;
+    ctx.fill();
+    ctx.restore();
+  }
+
+  function drawHandleBar(cx,y,w){
+    fillRoundRect(cx-w/2, y, w, 10, 8, "#d1d5db");
+  }
+
+  function drawCircleButton(cx,cy,r,bg){
+    ctx.save();
+    ctx.fillStyle = bg;
+    ctx.beginPath();
+    ctx.arc(cx,cy,r,0,Math.PI*2);
+    ctx.fill();
+    ctx.restore();
+  }
+
+  function drawShareIconDark(cx,cy){
+    ctx.save();
+
+    ctx.translate(cx, cy);
+    ctx.scale(0.85, 0.85);  
+    ctx.translate(-cx, -cy);
+
+    ctx.strokeStyle="#111827";
+    ctx.lineWidth=6.3;
+    ctx.lineCap="round";
+    ctx.lineJoin="round";
+
+    ctx.beginPath();
+    ctx.moveTo(cx, cy+11);
+    ctx.lineTo(cx, cy-16);
+    ctx.stroke();
+
+    ctx.beginPath();
+    ctx.moveTo(cx-11, cy-4);
+    ctx.lineTo(cx, cy-18);
+    ctx.lineTo(cx+11, cy-4);
+    ctx.stroke();
+
+    ctx.lineWidth=5.9;
+    ctx.beginPath();
+    ctx.moveTo(cx-17, cy+14);
+    ctx.lineTo(cx-17, cy+26);
+    ctx.lineTo(cx+17, cy+26);
+    ctx.lineTo(cx+17, cy+14);
+    ctx.stroke();
+
+    ctx.restore();
+  }
+
+  function drawCloseX(cx,cy){
+    ctx.save();
+    ctx.strokeStyle="#111827";
+    ctx.lineWidth=6.0;
+    ctx.lineCap="round";
+    ctx.beginPath();
+    ctx.moveTo(cx-9, cy-9);
+    ctx.lineTo(cx+9, cy+9);
+    ctx.moveTo(cx+9, cy-9);
+    ctx.lineTo(cx-9, cy+9);
+    ctx.stroke();
+    ctx.restore();
+  }
+
+  function drawStar(x,y,size,filled){
+    const s=size;
+    const cx=x+s/2, cy=y+s/2;
+    const spikes=5;
+    const outer=s*0.5;
+    const inner=s*0.22;
+
+    let rot=Math.PI/2*3;
+    ctx.beginPath();
+    ctx.moveTo(cx, cy-outer);
+    for(let i=0;i<spikes;i++){
+      ctx.lineTo(cx+Math.cos(rot)*outer, cy+Math.sin(rot)*outer);
+      rot += Math.PI/spikes;
+      ctx.lineTo(cx+Math.cos(rot)*inner, cy+Math.sin(rot)*inner);
+      rot += Math.PI/spikes;
+    }
+    ctx.closePath();
+    ctx.fillStyle = filled ? "#f4b400" : "rgba(0,0,0,0.10)";
+    ctx.fill();
+  }
+
+  function drawStarRow(x,baselineY,rating,starSize,step){
+    const r=clamp(rating,0,5);
+    const full=Math.floor(r);
+    const topY = baselineY - starSize + 10;
+    for(let i=0;i<5;i++){
+      drawStar(x+i*step, topY, starSize, i<full);
+    }
+  }
+
+  function measureTextBox(text,font){
+    ctx.save();
+    ctx.font=font;
+    const m=ctx.measureText(text);
+    const asc=m.actualBoundingBoxAscent ?? 0;
+    const desc=m.actualBoundingBoxDescent ?? 0;
+    ctx.restore();
+    return { w:m.width, asc, desc, h:asc+desc };
+  }
+
+
+  function fitLabel(text, maxW, basePx, minPx){
+    let px = basePx;
+    let font = `700 ${px}px ${TITLE_FONT_FAMILY}`;
+    let box = measureTextBox(text, font);
+
+    while (box.w > maxW && px > minPx) {
+      px--;
+      font = `700 ${px}px ${TITLE_FONT_FAMILY}`;
+      box = measureTextBox(text, font);
+    }
+
+    if (box.w > maxW) {
+      const ell = "…";
+      let lo = 1, hi = text.length, best = ell;
+      while (lo <= hi) {
+        const mid = (lo + hi) >> 1;
+        const cand = text.slice(0, mid) + ell;
+        const b2 = measureTextBox(cand, font);
+        if (b2.w <= maxW) { best = cand; lo = mid + 1; }
+        else { hi = mid - 1; }
+      }
+      return { text: best, font, px };
+    }
+
+    return { text, font, px };
+  }
+
+  const MAP_LIGHT="#C9FCFF";
+  const MAP_TEAL ="#2C767D";
+  const INACTIVE_INK="#124B52";
+
+  function drawDirectionIcon(icx,icy,active){
+    const arrowColor = active ? MAP_TEAL : INACTIVE_INK;
+    const d=30;
+
+    ctx.save();
+    ctx.fillStyle = "#fff";
+    ctx.beginPath();
+    ctx.moveTo(icx, icy-d);
+    ctx.lineTo(icx+d, icy);
+    ctx.lineTo(icx, icy+d);
+    ctx.lineTo(icx-d, icy);
+    ctx.closePath();
+    ctx.fill();
+
+    // 몸통
+    ctx.strokeStyle = arrowColor;
+    ctx.lineCap = "round";
+    ctx.lineJoin = "round";
+    ctx.lineWidth = 5.0;
+
+    // 튜닝 포인트
+    const ox = -3;         // 전체를 왼쪽으로 이동 (더 왼쪽이면 -4, -5)
+    const xStem = icx + ox - 4;
+    const yBottom = icy + 8;
+    const yTop = icy - 3;  // 세로선 위끝 (더 짧게 하려면 0, +1)
+    const xRight = icx + ox + 16; // 가로선 끝 (더 길게 하려면 18, 20)
+
+    ctx.beginPath();
+    ctx.moveTo(xStem, yBottom);
+    ctx.lineTo(xStem, yTop);     // 세로선(짧게)
+    ctx.lineTo(xRight, yTop);    // 가로선(길게)
+    ctx.stroke();
+
+    // 화살표 머리 (얇게)
+    ctx.lineWidth = 4.0;
+
+    // 머리 길이/각도 튜닝 포인트
+    const headBack = 7;  // 숫자 작을수록 머리가 길어짐(6), 클수록 짧아짐(9)
+    const headUp = 6;    // 숫자 클수록 위로 더 올라감(7~8)
+    const headDown = 6;  // 숫자 클수록 아래로 더 내려감(7~8)
+
+    ctx.beginPath();
+    ctx.moveTo(xRight, yTop);
+    ctx.lineTo(xRight - headBack, yTop - headUp);
+    ctx.stroke();
+
+    ctx.beginPath();
+    ctx.moveTo(xRight, yTop);
+    ctx.lineTo(xRight - headBack, yTop + headDown);
+    ctx.stroke();
+
+
+    ctx.restore();
+  }
+
+
+  function drawSaveIcon(icx,icy,stroke){
+    ctx.save();
+    ctx.strokeStyle=stroke;
+    ctx.lineWidth=6.1;
+    ctx.lineJoin="round";
+    const bw=30, bh=40;
+    const bx=icx-bw/2, by=icy-bh/2;
+    ctx.beginPath();
+    ctx.moveTo(bx,by);
+    ctx.lineTo(bx+bw,by);
+    ctx.lineTo(bx+bw,by+bh);
+    ctx.lineTo(icx,by+bh-12);
+    ctx.lineTo(bx,by+bh);
+    ctx.closePath();
+    ctx.stroke();
+    ctx.restore();
+  }
+
+  
+
+  // Call Handset Icon
+  function drawCallHandset(icx, icy, color){
+    ctx.save();
+    ctx.translate(icx, icy);
+
+    ctx.rotate(-0.0);
+
+    // 아이콘 크기
+    const px = 65;          // 대략적인 아이콘 박스 크기(px)
+    const scale = px / 24;  // SVG viewBox(24) 기준 스케일
+
+    // 중앙 정렬: 24x24를 원점 기준 가운데로
+    ctx.scale(scale, scale);
+    ctx.translate(-12, -12);
+
+    ctx.fillStyle = color;
+
+    const p = new Path2D(
+      "M6.62 10.79c1.44 2.83 3.76 5.14 6.59 6.59l2.2-2.2" +
+      "c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57" +
+      ".55 0 1 .45 1 1V20c0 .55-.45 1-1 1C10.07 21 3 13.93 3 5" +
+      "c0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57" +
+      ".11.35.03.74-.25 1.02l-2.2 2.2z"
+    );
+
+    ctx.fill(p);
+    ctx.restore();
+  }
+
+
+
+
+
+
+
+
+  function drawShareIcon(icx,icy,stroke){
+    ctx.save();
+    ctx.strokeStyle=stroke;
+    ctx.lineWidth=6.1;
+    ctx.lineCap="round";
+    ctx.lineJoin="round";
+
+    ctx.beginPath();
+    ctx.moveTo(icx, icy+9);
+    ctx.lineTo(icx, icy-14);
+    ctx.stroke();
+
+    ctx.beginPath();
+    ctx.moveTo(icx-10, icy-2);
+    ctx.lineTo(icx, icy-16);
+    ctx.lineTo(icx+10, icy-2);
+    ctx.stroke();
+
+    ctx.lineWidth=5.7;
+    ctx.beginPath();
+    ctx.moveTo(icx-15, icy+12);
+    ctx.lineTo(icx-15, icy+24);
+    ctx.lineTo(icx+15, icy+24);
+    ctx.lineTo(icx+15, icy+12);
+    ctx.stroke();
+
+    ctx.restore();
+  }
+
+  function drawPillButton(x,y,w,h,fill,iconKind,label,active){
+    fillRoundRect(x,y,w,h,h/2,fill);
+
+    const iconColor = active ? "#fff" : INACTIVE_INK;
+    const textColor = active ? "#fff" : INACTIVE_INK;
+
+    // 아이콘을 중앙 쪽으로 당김
+    const icx = x + w*0.28;
+    const icy = y + h/2;
+
+    ctx.save();
+    ctx.translate(icx, icy);
+    ctx.scale(1.15, 1.15);   // ← 아이콘 크기 (1.1 ~ 1.25 추천)
+    ctx.translate(-icx, -icy);
+
+    if(iconKind==="route") drawDirectionIcon(icx,icy,active);
+    if(iconKind==="call")  drawCallHandset(icx,icy,iconColor);
+    if(iconKind==="save")  drawSaveIcon(icx,icy,iconColor);
+    if(iconKind==="share") drawShareIcon(icx,icy,iconColor);
+
+    ctx.restore();
+
+    const textPadL = w*0.44;
+    const maxTextW = w - textPadL - (w*0.10);
+
+    const fitted = fitLabel(label, maxTextW, 44, 40);
+    const box = measureTextBox(fitted.text, fitted.font);
+    const visualCenterOffset = (box.asc - box.desc) * 0.06;
+
+    ctx.save();
+    ctx.fillStyle=textColor;
+    ctx.font=fitted.font;
+    ctx.textBaseline="middle";
+    ctx.fillText(fitted.text, x+textPadL, y+h/2+visualCenterOffset);
+    ctx.restore();
+  }
+
+  function sanitizeFilename(s){
+    const cleaned=(s||"place").replace(/[\\\/:*?"<>|]/g,"").replace(/\s+/g," ").trim();
+    return cleaned.length ? cleaned : "place";
+  }
+
+  async function render(){
+
+    const file = $("photo").files?.[0];
+    const placeRaw = ($("place").value || "").trim();
+    if(!file){ alert("사진 파일이 필요합니다."); return; }
+    if(!placeRaw){ alert("장소 이름은 필수입니다."); return; }
+
+    const category = ($("category").value || "").trim();
+    let rating = ($("rating").value || "").trim();
+    let reviews = ($("reviews").value || "").trim();
+    if(!rating) rating = randRating();
+    if(!reviews) reviews = String(randInt(5, 2500));
+    const rNum = clamp(parseFloat(rating), 0, 5);
+
+    const img = await loadImageFromFile(file);
+
+    const W = canvas.width;
+    const H = canvas.height;
+
+    // 시트(카드) 높이/위치
+    const sheetH = Math.round(clamp(H * 0.255, 460, 560));
+    const sheetY = H - sheetH;
+
+    ctx.clearRect(0,0,W,H);
+
+    // 시트 라운드 반경 (사진 덮임 계산에 사용)
+    const sheetR = 78;
+
+    // 1) 사진 영역: 크롭 cover + 하단 앵커(위쪽이 잘리게)
+    const photoAreaX = 0;
+    const photoAreaY = 0;
+    const photoAreaW = W;
+    const photoOverlap = Math.round(clamp(H * 0.065, 80, 140));
+    const photoAreaH = sheetY + photoOverlap;
+
+    const PHOTO_ANCHOR_Y = 0.5;
+    const crop = fitCoverAnchored(img.width, img.height, photoAreaW, photoAreaH, 0.5, PHOTO_ANCHOR_Y);
+    ctx.drawImage(img, crop.sx, crop.sy, crop.sw, crop.sh, photoAreaX, photoAreaY, photoAreaW, photoAreaH);
+
+    // 시트 그리기
+    ctx.save();
+    ctx.shadowColor="rgba(0,0,0,0.22)";
+    ctx.shadowBlur=40;
+    ctx.shadowOffsetY=-10;
+    fillTopRoundRect(0, sheetY, W, sheetH, sheetR, "#fff");
+    ctx.restore();
+
+    // 핸들바
+    drawHandleBar(W/2, sheetY + Math.round(sheetH*0.035), Math.round(W*0.13));
+
+    const padL = 86;
+    const rightPad = 78;
+
+    // 상단 회색 버튼(공유/닫기): 작게 유지
+    const btnR = 56;
+    const btnCY = sheetY + Math.round(sheetH*0.23);
+    const closeCX = W - rightPad - btnR;
+    const shareCX = closeCX - (btnR*2 + 54);
+
+    drawCircleButton(shareCX, btnCY, btnR, "#f3f4f6");
+    drawShareIconDark(shareCX, btnCY);
+
+    drawCircleButton(closeCX, btnCY, btnR, "#f3f4f6");
+    drawCloseX(closeCX, btnCY);
+
+    // 장소명: 버튼 라인과 같은 줄 정렬 + 자동 축소
+    const titleY = btnCY + 10;          // 아이콘과 한 줄처럼 보이도록 약간 아래
+    let titlePx = 82;
+    const minTitlePx = 52;
+
+    const titleEndX = shareCX - btnR - 30;
+    const maxTitleW = Math.max(120, titleEndX - padL);
+
+    titlePx = Math.min(titlePx, Math.floor(sheetH * 0.135));
+
+    const fittedTitle = fitLabel(placeRaw, maxTitleW, titlePx, minTitlePx);
+
+    ctx.save();
+    ctx.fillStyle = "#111";
+    ctx.font = fittedTitle.font;
+    ctx.textBaseline = "middle";
+    ctx.fillText(fittedTitle.text, padL, titleY);
+    ctx.restore();
+
+
+    // 별점/리뷰 줄
+    const rateY = sheetY + Math.round(sheetH*0.44);
+    const ratePx = 56;
+
+    ctx.save();
+    ctx.fillStyle="#6b7280";
+    ctx.font=`300 ${ratePx}px "Google Sans","Product Sans",Roboto,system-ui,-apple-system,Segoe UI,sans-serif`;
+    ctx.textBaseline="alphabetic";
+    const rateText = rNum.toFixed(1);
+    ctx.fillText(rateText, padL, rateY);
+    const rateW = ctx.measureText(rateText).width;
+    ctx.restore();
+
+    const starGap = 16;
+    const starSize = 54;
+    const starStep = 60;
+    const starX = padL + rateW + starGap;
+    drawStarRow(starX, rateY, rNum, starSize, starStep);
+
+    const reviewsX = starX + 5*starStep + 3;
+    ctx.save();
+    ctx.fillStyle="#9ca3af";
+    ctx.font=`300 ${ratePx-6}px "Google Sans","Product Sans",Roboto,system-ui,-apple-system,Segoe UI,sans-serif`;
+    ctx.textBaseline="alphabetic";
+    ctx.fillText(`(${Number(reviews).toLocaleString()})`, reviewsX, rateY);
+    ctx.restore();
+
+    if(category){
+      const catY = sheetY + Math.round(sheetH*0.58);
+      const catPx = 52;
+      ctx.save();
+      ctx.fillStyle="#9ca3af";
+      ctx.font=`300 ${catPx}px "Google Sans","Product Sans",Roboto,system-ui,-apple-system,Segoe UI,sans-serif`;
+      ctx.textBaseline="alphabetic";
+      ctx.fillText(category, padL, catY);
+      ctx.restore();
+    }
+
+    // 하단 버튼
+    const pillH = Math.round(clamp(sheetH*0.22, 108, 124));
+    const bottomInset = Math.round(sheetH*0.10);
+    const pillsY = H - bottomInset - pillH;
+
+    // 좌우 패딩은 유지
+    const rowPad = 30;
+    const rowW = W - rowPad * 2;
+    const pillGap = 16;
+
+    // 마지막(Share)이 화면 밖으로 나가게 만든다.
+    const overflow = 140; // 이 값이 클수록 Share가 더 많이 잘림 
+    const pillW = Math.floor((rowW + overflow - pillGap * 3) / 4);
+
+    const x0 = rowPad;
+
+    const L = I18N[currentLang];
+
+    drawPillButton(x0 + (pillW + pillGap) * 0, pillsY, pillW, pillH, MAP_TEAL,  "route", L.route, true);
+    drawPillButton(x0 + (pillW + pillGap) * 1, pillsY, pillW, pillH, MAP_LIGHT, "call",  L.call, false);
+    drawPillButton(x0 + (pillW + pillGap) * 2, pillsY, pillW, pillH, MAP_LIGHT, "save",  L.save, false);
+    drawPillButton(x0 + (pillW + pillGap) * 3, pillsY, pillW, pillH, MAP_LIGHT, "share", L.share, false);
+
+
+
+    $("notice").style.display="block";
+    $("dl").disabled=false;
+  }
+
+function toBlobWithTimeout(canvas, type = "image/png", quality, timeoutMs = 4000) {
+  return new Promise((resolve, reject) => {
+    let done = false;
+
+    const t = setTimeout(() => {
+      if (done) return;
+      done = true;
+      reject(new Error("toBlob timeout"));
+    }, timeoutMs);
+
+    try {
+      canvas.toBlob(
+        (blob) => {
+          if (done) return;
+          done = true;
+          clearTimeout(t);
+          resolve(blob);
+        },
+        type,
+        quality
+      );
+    } catch (e) {
+      if (done) return;
+      done = true;
+      clearTimeout(t);
+      reject(e);
+    }
+  });
+}
+
+  function safeBaseFilename(raw) {
+    const s = sanitizeFilename((raw || "").trim());
+    return (s || "googlemap_custom").slice(0, 60);
+  }
+
+  async function downloadPng() {
+    const base = safeBaseFilename(($("place").value || "").trim());
+    const filename = `${base}_googlemap_custom.png`;
+
+    const ua = navigator.userAgent;
+    const isIOS = /iPad|iPhone|iPod/.test(ua);
+    const isKakao = /KAKAOTALK/i.test(ua);
+    const isMobile = /Android|iPhone|iPad|iPod/i.test(ua);
+
+    // 1) 안드로이드(카카오 제외)에서만 dataURL 우선 시도 (iOS 제외)
+    if (isMobile && !isIOS && !isKakao) {
+      try {
+        const dataUrl = canvas.toDataURL("image/png");
+        const a = document.createElement("a");
+        a.href = dataUrl;
+        a.download = filename;
+        a.rel = "noopener";
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        return;
+      } catch (e) {
+        // 실패 시 blob로 폴백
+      }
+    }
+
+    // 2) blob 생성 (무한대기 방지)
+    let blob;
+    try {
+      blob = await toBlobWithTimeout(canvas, "image/png", undefined, 4000);
+    } catch (e) {
+      alert("이미지 생성에 실패했습니다. (브라우저 제한 또는 메모리 부족)");
+      return;
+    }
+
+    if (!blob) {
+      alert("이미지 생성에 실패했습니다.");
+      return;
+    }
+
+    // 3) iOS / 카카오 인앱: Share API 우선
+    if ((isIOS || isKakao) && navigator.share) {
+      try {
+        const file = new File([blob], filename, { type: "image/png" });
+        const canShareFiles =
+          !navigator.canShare || navigator.canShare({ files: [file] });
+
+        if (canShareFiles) {
+          await navigator.share({
+            files: [file],
+            title: filename,
+            text: "이미지 저장"
+          });
+          return;
+        }
+      } catch (e) {
+        // 공유 실패 시 다음 단계
+      }
+    }
+
+    const url = URL.createObjectURL(blob);
+
+    // 4) 데스크톱 / 안드로이드(카카오 제외): 다운로드
+    if (!isIOS && !isKakao) {
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = filename;
+      a.rel = "noopener";
+      a.style.display = "none";
+      document.body.appendChild(a);
+
+      a.click();
+      a.remove();
+
+      // 처리 지연 고려
+      setTimeout(() => URL.revokeObjectURL(url), 10000);
+      return;
+    }
+
+    // 5) iOS / 카카오 인앱 최종 폴백: 열어서 길게 눌러 저장
+    const opened = window.open(url, "_blank", "noopener,noreferrer");
+    if (!opened) window.location.href = url;
+
+    setTimeout(() => URL.revokeObjectURL(url), 60000);
+  }
+
+
+
+  $("gen").addEventListener("click", ()=>render().catch(e=>alert(e?.message ?? "생성 중 오류")));
+  $("dl").addEventListener("click", downloadPng);
+
+  $("langToggle").addEventListener("click", () => {
+    currentLang = currentLang === "en" ? "ko" : "en";
+    $("langToggle").textContent = currentLang === "en" ? "한국어" : "English";
+
+    if ($("photo").files?.[0]) {
+      render();
+    }
+  });
+
+  (function init(){
+    ctx.fillStyle="#fff";
+    ctx.fillRect(0,0,canvas.width,canvas.height);
+    ctx.fillStyle="#6b7280";
+    ctx.font="800 44px system-ui,-apple-system,Segoe UI,Roboto,sans-serif";
+    ctx.fillText("여기에 결과가 표시됩니다.", 80, 160);
+  })();
+</script>
+</body>
+</html>

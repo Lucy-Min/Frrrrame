@@ -1,0 +1,1157 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+
+  <link rel="icon" href="images/favicon.ico">
+  <link rel="icon" type="image/svg+xml" href="images/favicon.svg">
+  <link rel="icon" type="image/png" sizes="96x96" href="images/favicon-96x96.png">
+  <link rel="apple-touch-icon" href="images/apple-touch-icon.png">
+  <link rel="manifest" href="site.webmanifest">
+
+
+  <meta name="theme-color" content="#517efb" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>유튜브st 프레임 생성기</title>
+
+  <style>
+    html, body{ width:100%; overflow-x:clip; }
+    *{ box-sizing:border-box; }
+    body{
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+      margin:0;
+      background:#f3f4f6;
+      color:#111;
+    }
+
+    .topbar{
+      width:min(980px, 100%);
+      margin:18px auto 0;
+      padding:0 16px;
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+    }
+    .backLink{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      padding:10px 12px;
+      border-radius:12px;
+      border:1px solid #e5e7eb;
+      background:#fff;
+      color:#111;
+      text-decoration:none;
+      font-weight:900;
+      font-size:14px;
+    }
+    .backLink:active{ transform:translateY(1px); }
+
+    .wrap{
+      width:min(980px, 100%);
+      margin:12px auto 24px;
+      padding:16px;
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:16px;
+    }
+    .panel{
+      background:#fff;
+      border:1px solid #e5e7eb;
+      border-radius:16px;
+      padding:16px;
+      overflow:hidden;
+      max-width:100%;
+    }
+    h1{ font-size:22px; margin:0 0 10px; }
+    .sub{ color:#6b7280; font-size:13px; line-height:1.5; margin:0 0 14px; }
+    label{
+      display:grid;
+      gap:6px;
+      margin-top:10px;
+      font-weight:800;
+      min-width:0;
+    }
+    input{
+      width:100%;
+      max-width:100%;
+      min-width:0;
+      padding:12px;
+      border:1px solid #d1d5db;
+      border-radius:12px;
+      font-size:16px;
+      outline:none;
+    }
+    input[type="file"]{ width:100%; max-width:100%; }
+    .btn{
+      margin-top:14px;
+      width:100%;
+      padding:14px;
+      border:0;
+      border-radius:14px;
+      background:#517efb;
+      color:#fff;
+      font-size:18px;
+      font-weight:900;
+      cursor:pointer;
+    }
+    .btn2{
+      margin-top:10px;
+      width:100%;
+      padding:12px;
+      border:1px solid #111;
+      border-radius:14px;
+      background:#fff;
+      color:#111;
+      font-size:16px;
+      font-weight:900;
+      cursor:pointer;
+    }
+    .notice{
+      display:none;
+      margin-top:12px;
+      padding:12px 14px;
+      border-radius:12px;
+      background:#f1f5f9;
+      color:#0f172a;
+      font-weight:900;
+      line-height:1.5;
+    }
+    .notice .sub2{ font-weight:650; color:#475569; margin-top:4px; }
+
+    .previewBox{
+      background:#fff;
+      border:1px solid #e5e7eb;
+      border-radius:16px;
+      padding:16px;
+      display:grid;
+      place-items:center;
+      width:100%;
+      overflow:hidden;
+    }
+    canvas{
+      display:block;
+      width:min(420px, 100%);
+      height:auto;
+      background:#fff;
+      border-radius:20px;
+      border:1px solid #e5e7eb;
+    }
+    @media (max-width: 900px){
+      .wrap{ grid-template-columns:1fr; }
+      canvas{ width:min(520px, 100%); }
+    }
+
+    .patchNoteLink{
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .patchNoteLink .patchIcon{
+      width: 14px !important;
+      height: 14px !important;
+      max-width: 14px !important;
+      max-height: 14px !important;
+      display: inline-block !important;
+      flex: 0 0 auto;
+    }
+
+
+
+    .titleRow{
+      display:flex;
+      align-items:baseline;
+      gap:10px;
+    }
+    .patchNoteLink{
+      font-size:13px;
+      color:#6b7280;
+      text-decoration:underline;
+      font-weight:600;
+      cursor:pointer;
+      white-space:nowrap;
+      display:inline-flex;
+      align-items:center;
+      gap:4px;
+    }
+    .patchNoteLink:hover{ color:#374151; }
+    .notionIcon{ width:14px; height:14px; opacity:0.75; }
+  </style>
+</head>
+
+<body>
+  <div class="topbar">
+    <a class="backLink" href="./index.html" aria-label="처음으로">처음으로</a>
+  </div>
+
+  <div class="wrap">
+    <div class="panel">
+      <div class="titleRow">
+        <h1>유튜브st 프레임 생성기</h1>
+        <a
+          href="https://www.notion.so/2ea05b04aa9f8060bc71e97dda32e332"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="patchNoteLink"
+          title="패치노트 보기"
+        >
+          <img src="images/icons8.svg" class="patchIcon" alt="">
+          패치노트
+        </a>
+      </div>
+
+      <p class="sub">사진을 업로드하면 유튜브 댓글창 스타일의 시트로 생성됩니다.</p>
+
+      <label>이미지<input id="photo" type="file" accept="image/*" /></label>
+
+      <label>댓글 작성자 프로필 이미지(선택)<input id="avatar" type="file" accept="image/*" /></label>
+
+      <label>닉네임<input id="place" type="text" placeholder="예: user123" /></label>
+
+      <label>n시간 전(비우면 1~10 랜덤)<input id="rating" type="text" placeholder="예: 2" /></label>
+
+      <label>좋아요 수(비우면 1~50K 랜덤)<input id="reviews" type="text" placeholder="예: 4K 또는 128" /></label>
+
+      <label>댓글내용<input id="category" type="text" placeholder="예: 와 쩐다.." /></label>
+
+      <button class="btn2" id="langToggle">한국어</button>
+      <button class="btn" id="gen">생성하기</button>
+      <button class="btn2" id="dl" disabled>이미지 저장</button>
+
+      <div class="notice" id="notice">
+        <div>완성!</div>
+        <div class="sub2">“이미지 저장” 버튼 또는 이미지를 길게 눌러 저장하세요.</div>
+      </div>
+    </div>
+
+    <div class="previewBox">
+      <canvas id="c" width="1080" height="1440"></canvas>
+    </div>
+  </div>
+
+<script>
+  // PWA: 서비스 워커 등록
+  (function(){
+    if (!('serviceWorker' in navigator)) return;
+    window.addEventListener('load', async () => {
+      try {
+        await navigator.serviceWorker.register('./sw.js', { scope: './' });
+      } catch (_) {
+        // 등록 실패는 기능에 치명적이지 않으므로 무시
+      }
+    });
+  })();
+
+  let currentLang = "en";
+
+  const $ = (id) => document.getElementById(id);
+  const canvas = $("c");
+  const ctx = canvas.getContext("2d");
+
+  function clamp(n,a,b){ return Math.max(a, Math.min(b,n)); }
+  function randInt(min,max){ return Math.floor(Math.random()*(max-min+1))+min; }
+
+  async function loadImageFromFile(file){
+    const url = URL.createObjectURL(file);
+    const img = new Image();
+    img.crossOrigin = "anonymous";
+    await new Promise((resolve,reject)=>{
+      img.onload = resolve;
+      img.onerror = ()=>reject(new Error("이미지 로드 실패"));
+      img.src = url;
+    });
+    return img;
+  }
+
+  function fitCoverAnchored(imgW,imgH, boxW,boxH, ax=0.5, ay=1.0){
+    const imgRatio = imgW/imgH;
+    const boxRatio = boxW/boxH;
+
+    let sw, sh, sx, sy;
+
+    if (imgRatio > boxRatio){
+      sh = imgH;
+      sw = imgH * boxRatio;
+      sx = (imgW - sw) * ax;
+      sy = 0;
+    } else {
+      sw = imgW;
+      sh = imgW / boxRatio;
+      sx = 0;
+      sy = (imgH - sh) * ay;
+    }
+
+    sx = clamp(sx, 0, Math.max(0, imgW - sw));
+    sy = clamp(sy, 0, Math.max(0, imgH - sh));
+
+    return { sx, sy, sw, sh };
+  }
+
+  function roundRectPath(ctx,x,y,w,h,r){
+    const rr = Math.min(r, w/2, h/2);
+    ctx.beginPath();
+    ctx.moveTo(x+rr,y);
+    ctx.arcTo(x+w,y, x+w,y+h, rr);
+    ctx.arcTo(x+w,y+h, x,y+h, rr);
+    ctx.arcTo(x,y+h, x,y, rr);
+    ctx.arcTo(x,y, x+w,y, rr);
+    ctx.closePath();
+  }
+
+  function topRoundRectPath(ctx,x,y,w,h,r){
+    const rr = Math.min(r, w/2, h);
+    ctx.beginPath();
+    ctx.moveTo(x, y+rr);
+    ctx.arcTo(x,y, x+rr,y, rr);
+    ctx.lineTo(x+w-rr, y);
+    ctx.arcTo(x+w,y, x+w,y+rr, rr);
+    ctx.lineTo(x+w, y+h);
+    ctx.lineTo(x, y+h);
+    ctx.closePath();
+  }
+
+  function fillTopRoundRect(x,y,w,h,r,fill){
+    ctx.save();
+    topRoundRectPath(ctx,x,y,w,h,r);
+    ctx.fillStyle = fill;
+    ctx.fill();
+    ctx.restore();
+  }
+
+  function fillRoundRect(x,y,w,h,r,fill){
+    ctx.save();
+    roundRectPath(ctx,x,y,w,h,r);
+    ctx.fillStyle = fill;
+    ctx.fill();
+    ctx.restore();
+  }
+
+  function strokeRoundRect(x,y,w,h,r,stroke,lineW=2){
+    ctx.save();
+    roundRectPath(ctx,x,y,w,h,r);
+    ctx.strokeStyle = stroke;
+    ctx.lineWidth = lineW;
+    ctx.stroke();
+    ctx.restore();
+  }
+
+  function drawHandleBar(cx,y,w){
+    fillRoundRect(cx-w/2, y, w, 10, 6, "#d1d5db");
+  }
+
+  function drawCloseX(cx,cy){
+    ctx.save();
+    ctx.strokeStyle="#111827";
+    ctx.lineWidth=6.0;
+    ctx.lineCap="round";
+    ctx.beginPath();
+    ctx.moveTo(cx-9, cy-9);
+    ctx.lineTo(cx+9, cy+9);
+    ctx.moveTo(cx+9, cy-9);
+    ctx.lineTo(cx-9, cy+9);
+    ctx.stroke();
+    ctx.restore();
+  }
+
+  function drawInfoIcon(cx,cy){
+    ctx.save();
+    ctx.strokeStyle="#111827";
+    ctx.lineWidth=5.2;
+    ctx.beginPath();
+    ctx.arc(cx,cy,22,0,Math.PI*2);
+    ctx.stroke();
+
+    ctx.fillStyle="#111827";
+    ctx.beginPath();
+    ctx.arc(cx, cy-10, 3.8, 0, Math.PI*2);
+    ctx.fill();
+
+    ctx.lineWidth = 6;
+    ctx.lineCap = "round";
+    ctx.beginPath();
+    ctx.moveTo(cx, cy-1);
+    ctx.lineTo(cx, cy+14);
+    ctx.stroke();
+    ctx.restore();
+  }
+
+  function drawKebab(cx,cy){
+    ctx.save();
+    ctx.fillStyle="#111827";
+    const r = 3.6;
+    ctx.beginPath(); ctx.arc(cx, cy-10, r, 0, Math.PI*2); ctx.fill();
+    ctx.beginPath(); ctx.arc(cx, cy,     r, 0, Math.PI*2); ctx.fill();
+    ctx.beginPath(); ctx.arc(cx, cy+10,  r, 0, Math.PI*2); ctx.fill();
+    ctx.restore();
+  }
+
+  function wrapTextLines(text, maxW, font){
+    ctx.save();
+    ctx.font = font;
+
+    const raw = String(text || "");
+    const tokens = raw.includes(" ") ? raw.split(/\s+/) : raw.split("");
+    const lines = [];
+    let line = "";
+
+    for (const t of tokens){
+      const test = line ? (raw.includes(" ") ? (line + " " + t) : (line + t)) : t;
+      if (ctx.measureText(test).width <= maxW){
+        line = test;
+      } else {
+        if (line) lines.push(line);
+        line = t;
+      }
+    }
+    if (line) lines.push(line);
+
+    ctx.restore();
+    return lines;
+  }
+
+  function ellipsizeToWidth(text, maxW, font){
+    ctx.save();
+    ctx.font = font;
+
+    let s = String(text);
+    if (ctx.measureText(s).width <= maxW){
+      ctx.restore();
+      return s;
+    }
+    for (let i = s.length; i > 0; i--){
+      const cand = s.slice(0, i);
+      if (ctx.measureText(cand).width <= maxW){
+        ctx.restore();
+        return cand;
+      }
+    }
+    ctx.restore();
+    return "";
+  }
+
+  function moreLabel(lang){
+    return (lang === "ko") ? "더보기..." : "Read more...";
+  }
+
+  function formatLikeEN(n){
+    const v = Number(n);
+    if (!Number.isFinite(v) || v <= 0) return "0";
+
+    if (v < 1000) return String(Math.floor(v));
+
+    if (v < 10000){
+      const k = v / 1000;
+      const s = k.toFixed(1).replace(/\.0$/, "");
+      return s + "K";
+    }
+
+    return Math.round(v / 1000) + "K";
+  }
+
+
+  function formatLikeKO(n){
+    const v = Number(n);
+    if (!Number.isFinite(v) || v <= 0) return "0";
+
+    if (v < 1000) return String(Math.floor(v));
+
+    if (v < 10000){
+      return Math.floor(v / 1000) + "천";
+    }
+
+    const man = v / 10000;
+    const s = man.toFixed(1).replace(/\.0$/, "");
+    return s + "만";
+  }
+
+
+  function normalizeLikes(inputStr, lang){
+    const raw = String(inputStr || "").trim();
+
+    if (!raw){
+      const n = randInt(600, 20000);
+      return (lang === "ko") ? formatLikeKO(n) : formatLikeEN(n);
+    }
+
+    // "5,000" 같은 입력도 처리
+    const s = raw.replace(/[,\s]/g, "");
+
+    // 숫자만이면 자동 포맷: 5000 -> 5K / 5천
+    if (/^\d+$/.test(s)){
+      const n = parseInt(s, 10);
+      return (lang === "ko") ? formatLikeKO(n) : formatLikeEN(n);
+    }
+
+    // 이미 사용자가 "4K" 같은 형태로 넣은 경우는 그대로 표시
+    return raw;
+  }
+
+
+  function normalizeHours(inputStr){
+    const s = String(inputStr || "").trim();
+    if (!s) return randInt(1,10);
+    const n = parseInt(s, 10);
+    if (!Number.isFinite(n) || n <= 0) return randInt(1,10);
+    return clamp(n, 1, 10);
+  }
+
+  function timeLabel(hours, lang){
+    return (lang === "ko") ? `${hours}시간 전` : `${hours}h ago`;
+  }
+
+  function drawTabPill(x,y,label,active){
+    const font = `800 30px system-ui,-apple-system,Segoe UI,Roboto,sans-serif`;
+    ctx.save();
+    ctx.font = font;
+    const tw = ctx.measureText(label).width;
+    ctx.restore();
+
+    const padX = 22;
+    const w = Math.round(tw + padX*2);
+    const h = 54;
+    const r = 12;
+
+    fillRoundRect(x,y,w,h,r, active ? "#111827" : "#f3f4f6");
+    ctx.save();
+    ctx.fillStyle = active ? "#ffffff" : "#111827";
+    ctx.font = font;
+    ctx.textBaseline = "middle";
+    ctx.fillText(label, x + padX, y + h/2);
+    ctx.restore();
+
+    return { w, h };
+  }
+
+  // 진행바: 카드에 딱 붙이고, 양끝까지 꽉 채움 
+  function drawYouTubeProgressBarAttached(sheetY, playP, buffP){
+    const W = canvas.width;
+
+    const barH = 8;           // 3) 회색 바 두께 더 얇게
+    const x = 0;
+    const y = sheetY - barH;  // 시트와 맞닿도록
+    const w = W;
+    const r = 0;
+
+    const play = clamp(playP, 0, 1);
+    const buff = clamp(buffP, 0, 1);
+
+    // 남은 구간(짙은 회색 + opacity 0.7)
+    ctx.save();
+    ctx.globalAlpha = 0.7;
+    fillRoundRect(x, y, w, barH, r, "#374151");
+    ctx.restore();
+
+    // 버퍼링(밝은 회색)
+    const bw = Math.round(w * buff);
+    fillRoundRect(x, y, bw, barH, r, "#d1d5db");
+
+    // 재생(빨강)
+    const pw = Math.round(w * play);
+    fillRoundRect(x, y, pw, barH, r, "#ef4444");
+  }
+
+
+    // 2) 아이콘 
+    function drawPathIcon(icx, icy, color, d, px, mode, lineW){
+    ctx.save();
+    ctx.translate(icx, icy);
+
+    const scale = px / 24;
+    ctx.scale(scale, scale);
+    ctx.translate(-12, -12);
+
+    const p = new Path2D(d);
+
+    if (mode === "stroke"){
+        ctx.strokeStyle = color;
+        ctx.lineWidth = (lineW ?? 2.2);
+        ctx.lineJoin = "round";
+        ctx.lineCap = "round";
+        ctx.stroke(p);
+    } else {
+        ctx.fillStyle = color;
+        ctx.fill(p);
+    }
+    ctx.restore();
+    }
+
+    // Material-like paths (24 viewBox)
+    const PATH_THUMB_UP =
+    "M2 21h4V9H2v12zm20-11c0-1.1-.9-2-2-2h-6.31l.95-4.57.03-.32c0-.41-.17-.79-.44-1.06L13 1 6.59 7.41C6.22 7.78 6 8.3 6 8.83V19c0 1.1.9 2 2 2h9c.83 0 1.54-.5 1.84-1.22l3.02-7.05c.09-.23.14-.47.14-.73v-2z";
+
+    const PATH_THUMB_DOWN =
+    "M22 3h-4v12h4V3zM2 14c0 1.1.9 2 2 2h6.31l-.95 4.57-.03.32c0 .41.17.79.44 1.06L11 23l6.41-6.41c.37-.37.59-.89.59-1.42V5c0-1.1-.9-2-2-2H7c-.83 0-1.54.5-1.84 1.22L2.14 11.27c-.09.23-.14.47-.14.73v2z";
+
+    const PATH_CHAT_BUBBLE =
+    "M8.8 6" +
+    "H15.2" +
+    "Q17 6 17 7.8" +
+    "V13.2" +
+    "Q17 15 15.2 15" +
+    // 하단 라인 + 꼬리(홈 → 왼쪽대각 하강 → 복귀)
+    "H12.4" +          // 하단 라인 진행 (y=15)
+    "L12.2 15.6" +     // 하단에서 살짝만 내려와(직각 완화)
+    "L11.7 16.1" + 
+    "L8.8 18.2" +     // 2) 꼬리 뾰족점: 왼쪽 대각선 크게 (원하면 x를 더 줄이면 됨)
+    "L9.6 16.1" +     // 3) 복귀점: 너무 오른쪽으로 끌지 않도록(접힘 방지)
+    "L10.0 15.0" +     // 4) 하단 라인(y=15)로 자연스럽게 재접속
+    "H8.8" +           // 4) 바디 하단 라인에 자연스럽게 재접속
+    // 왼쪽/상단 라운딩
+    "Q7 15 7 13.2" +
+    "V7.8" +
+    "Q7 6 8.8 6" +
+    "Z";
+
+    // 내부 2줄
+    const PATH_CHAT_LINES = "M9 9h6 M9 11.8h4";
+
+    // sizes
+    const PX_THUMB = 38;   // 좋아요/싫어요 더 작게
+    const PX_CHAT  = 70;   // 댓글은 약간 크게 
+    const LW_THUMB = 2.2;  // 기본 선두께
+    const LW_CHAT  = 1.05;  // 댓글만 더 얇게
+
+    function drawLikeIcon(icx, icy){
+    drawPathIcon(icx, icy, "#111827", PATH_THUMB_UP, PX_THUMB, "stroke", LW_THUMB);
+    }
+
+    function drawDislikeIcon(icx, icy){
+    drawPathIcon(icx, icy, "#111827", PATH_THUMB_DOWN, PX_THUMB, "stroke", LW_THUMB);
+    }
+
+    function drawCommentIcon(icx, icy){
+    drawPathIcon(icx, icy, "#111827", PATH_CHAT_BUBBLE, PX_CHAT, "stroke", LW_CHAT);
+    drawPathIcon(icx, icy, "#111827", PATH_CHAT_LINES,  PX_CHAT, "stroke", LW_CHAT);
+    }
+
+
+
+  function randomDarkColor(){
+    const palette = ["#111827","#1249CC","#9820E3","#E32030","#FFE91F","#111827"];
+    return palette[randInt(0, palette.length-1)];
+  }
+
+  function drawAvatarCircle(x, y, r, avatarImg){
+    if (avatarImg){
+      ctx.save();
+      ctx.beginPath();
+      ctx.arc(x, y, r, 0, Math.PI*2);
+      ctx.closePath();
+      ctx.clip();
+
+      const crop = fitCoverAnchored(avatarImg.width, avatarImg.height, r*2, r*2, 0.5, 0.5);
+      ctx.drawImage(
+        avatarImg,
+        crop.sx, crop.sy, crop.sw, crop.sh,
+        x-r, y-r, r*2, r*2
+      );
+      ctx.restore();
+      return;
+    }
+
+    ctx.save();
+    ctx.fillStyle = randomDarkColor();
+    ctx.beginPath();
+    ctx.arc(x, y, r, 0, Math.PI*2);
+    ctx.fill();
+    ctx.restore();
+  }
+
+  function formatLikeCount(n){
+    const v = Number(n);
+    if (!Number.isFinite(v)) return "";
+
+    // 0~999: 그대로
+    if (v < 1000) return String(Math.round(v));
+
+    // 1,000~9,999: 1K~9.9K (한 자리 소수)
+    if (v < 10000) {
+      const k = v / 1000;
+      const s = k.toFixed(1).replace(/\.0$/, "");
+      return s + "K";
+    }
+
+    // 10,000 이상: 10K, 41K (정수 K)
+    return Math.round(v / 1000) + "K";
+  }
+
+
+  function drawNameWithAt(x, y, nicknameOnly, baseFontPx){
+    const nick = String(nicknameOnly || "").trim();
+    const at = "@";
+    const atFont = `700 ${baseFontPx + 2}px system-ui,-apple-system,Segoe UI,Roboto,sans-serif`;
+    const nickFont = `700 ${baseFontPx}px system-ui,-apple-system,Segoe UI,Roboto,sans-serif`;
+    const timeFontPx = 31;  
+
+    ctx.save();
+    ctx.textBaseline = "alphabetic";
+    ctx.fillStyle = "#111827";
+
+    ctx.font = `600 ${timeFontPx}px system-ui,-apple-system,Segoe UI,Roboto,sans-serif`;
+    const atW = ctx.measureText(at).width;
+    ctx.fillText(at, x, y);
+
+    ctx.font = nickFont;
+    ctx.fillText(nick, x + atW + 2, y);
+
+    ctx.restore();
+
+    ctx.save();
+    ctx.font = atFont;
+    const atWidth = ctx.measureText(at).width;
+    ctx.font = nickFont;
+    const nickWidth = ctx.measureText(nick).width;
+    ctx.restore();
+    return atWidth + 2 + nickWidth;
+  }
+
+  function drawYouTubeCommentsSheet(sheetY, sheetH, lang, uiData, avatarImg){
+    const I18N = {
+      en: {
+        title: "Comments",
+        tabs: ["Top", "Timed", "Members", "Newest"],
+      },
+      ko: {
+        title: "댓글",
+        tabs: ["인기순", "시간순", "멤버전용", "최신순"],
+      }
+    };
+
+    const W = canvas.width;
+
+    const sheetR = 34;
+    fillTopRoundRect(0, sheetY, W, sheetH, sheetR, "#fff");
+
+    drawHandleBar(W/2, sheetY + Math.round(sheetH*0.035), Math.round(W*0.13));
+
+    const padL = 72;
+    const padR = 72;
+    const headerY = sheetY + Math.round(sheetH*0.16);
+
+    ctx.save();
+    ctx.fillStyle="#111827";
+    ctx.font = `900 ${Math.round(sheetH*0.10)}px system-ui,-apple-system,Segoe UI,Roboto,sans-serif`;
+    ctx.textBaseline="middle";
+    ctx.fillText(I18N[lang].title, padL, headerY);
+    ctx.restore();
+
+    const iconGap = 26;
+    const xClose = W - padR - 22;
+    const xInfo  = xClose - (44 + iconGap);
+    drawInfoIcon(xInfo, headerY);
+    drawCloseX(xClose, headerY);
+
+    const tabsY = sheetY + Math.round(sheetH*0.24);
+    let tx = padL;
+
+    const tabs = I18N[lang].tabs;
+
+    const t1 = drawTabPill(tx, tabsY, tabs[0], true);      tx += t1.w + 18;
+    const t2 = drawTabPill(tx, tabsY, tabs[1], false);     tx += t2.w + 18;
+    const t3 = drawTabPill(tx, tabsY, tabs[2], false);     tx += t3.w + 18;
+    drawTabPill(tx, tabsY, tabs[3], false);
+
+    const sepY = tabsY + 72;
+    ctx.save();
+    ctx.strokeStyle = "#e5e7eb";
+    ctx.lineWidth = 4;      
+    ctx.lineCap = "round";
+    ctx.beginPath();
+    ctx.moveTo(padL, sepY);
+    ctx.lineTo(W - padR, sepY);
+    ctx.stroke();
+    ctx.restore();
+
+    const baseX = padL;
+    const baseY = sepY + 26;
+    const listW = W - padL - padR;
+
+    const avatarR = 30;
+    const avatarCx = baseX + avatarR;
+    const avatarCy = baseY + avatarR;
+
+    drawAvatarCircle(avatarCx, avatarCy, avatarR, avatarImg);
+
+    const textX = baseX + avatarR*2 + 18;
+    const RIGHT_CUT = 48; // ← 오른쪽을 더 자르고 싶은 만큼(px)
+    const maxTextW = listW - (textX - baseX) - RIGHT_CUT;
+
+    const headerBaseY = baseY + 40;
+
+    const nameFontPx = 28;     // 닉네임 폰트 크기
+    const timeFontPx = 28;     // 시간 폰트 크기(동일)
+    const nick = String(uiData.nickname || "").trim();
+    const at = "@";
+
+    ctx.save();
+    ctx.textBaseline = "alphabetic";
+
+    // 닉네임(@ 포함)
+    ctx.fillStyle = "#6b7280";
+    ctx.font = `500 ${nameFontPx}px system-ui,-apple-system,Segoe UI,Roboto,sans-serif`;
+
+    const atW = ctx.measureText(at).width;
+    ctx.fillText(at, textX, headerBaseY);
+
+    const nickW = ctx.measureText(nick).width;
+    ctx.fillText(nick, textX + atW + 2, headerBaseY);
+
+   //시간 폰트
+    ctx.font = `400 ${timeFontPx}px system-ui,-apple-system,Segoe UI,Roboto,sans-serif`;
+    ctx.fillText("· " + uiData.time, textX + atW + 2 + nickW + 14, headerBaseY);
+
+    ctx.restore();
+
+
+    drawKebab(baseX + listW - 16, headerBaseY - 6);
+
+    // ===== 본문(최대 3줄, 마지막 줄 끝에 ... Read more / ... 더보기) =====
+    const bodyFont = `500 32px system-ui,-apple-system,Segoe UI,Roboto,sans-serif`; 
+    const lineH = 44;
+    const bodyTopY = baseY + 92;
+
+    const fullLines = wrapTextLines(uiData.text, maxTextW, bodyFont);
+    const overflow = fullLines.length > 3;
+
+    const suffix = (lang === "ko") ? "... 더보기" : "... Read more";
+
+    let lines = fullLines.slice(0, 3);
+
+    ctx.save();
+    ctx.font = bodyFont;
+    ctx.textBaseline = "alphabetic";
+
+    if (overflow){
+    // 3번째 줄을 "검은 본문 + (짙은 회색) suffix"로 한 줄에 붙이기
+    const suffixW = ctx.measureText(suffix).width;
+
+    // 3번째 줄에 들어갈 검은 본문 파트는 suffix만큼 공간을 비워야 함
+    const blackMaxW = Math.max(0, maxTextW - suffixW);
+
+    // 3번째 줄 후보 텍스트를 만들 때, 4번째 이후 내용을 조금 더 흡수해서
+    // 마지막 줄이 너무 짧아 보이지 않게 합니다.
+    let tail = lines[2] || "";
+    for (let i = 3; i < fullLines.length; i++){
+        const cand = tail + (uiData.text.includes(" ") ? " " : "") + fullLines[i];
+        if (ctx.measureText(cand).width <= blackMaxW * 1.6) tail = cand; // 과도하게 길어지지 않게 제한
+        else break;
+    }
+
+    const blackText = ellipsizeToWidth(tail, blackMaxW, bodyFont);
+    lines[2] = blackText;
+
+    // 3줄을 그리되, 3번째 줄 끝에 suffix를 따로 그립니다.
+    ctx.fillStyle = "#111827";
+    let cy = bodyTopY;
+
+    // 1~2줄
+    for (let i = 0; i < 2; i++){
+        if (!lines[i]) break;
+        ctx.fillText(lines[i], textX, cy);
+        cy += lineH;
+    }
+
+    // 3줄(검은 본문)
+    const line3Y = cy;
+    ctx.fillStyle = "#111827";
+    ctx.fillText(lines[2] || "", textX, line3Y);
+
+    // suffix (짙은 회색)
+    const blackW = ctx.measureText(lines[2] || "").width;
+    ctx.fillStyle = "#374151";
+    ctx.fillText(suffix, textX + blackW, line3Y);
+
+    cy += lineH;
+
+    ctx.restore();
+
+    // actionY 계산을 overflow 분기에서도 동일하게 쓰기 위해 cy를 아래에 넘깁니다.
+    var bodyBottomY = cy;
+    } else {
+    // overflow 없으면 그냥 1~3줄 출력
+    ctx.fillStyle = "#111827";
+    let cy = bodyTopY;
+    for (const ln of lines){
+        if (!ln) break;
+        ctx.fillText(ln, textX, cy);
+        cy += lineH;
+    }
+    ctx.restore();
+    var bodyBottomY = cy;
+    }
+
+    ctx.save();
+    ctx.font = bodyFont;
+    ctx.fillStyle = "#111827";
+    ctx.textBaseline = "alphabetic";
+
+    let cy = bodyTopY;
+    for (const ln of lines){
+      ctx.fillText(ln, textX, cy);
+      cy += lineH;
+    }
+
+    ctx.restore();
+
+    const lineCount = overflow ? 3 : lines.length;
+
+    // 최소 간격은 반드시 15로 고정
+    const GAP_MIN = 13;
+
+    // 1줄/2줄일 때만 더 벌릴 추가값(px)
+    const EXTRA_2LINE = 12;  // 2줄이면 +12 → 총 25
+    const EXTRA_1LINE = 18;  // 1줄이면 +18 → 총 32
+
+    let extraGap = 0;
+    if (lineCount === 1) extraGap = EXTRA_1LINE;
+    else if (lineCount === 2) extraGap = EXTRA_2LINE;
+
+    // actionY 계산: 최소 15는 유지, 필요한 경우에만 추가
+    const actionY = bodyBottomY + GAP_MIN + extraGap;
+
+    // 아이콘 배치 (스크린샷 비율 기준)
+    drawLikeIcon(textX + 18, actionY - 12);
+
+    ctx.save();
+    ctx.font = `500 30px system-ui,-apple-system,Segoe UI,Roboto,sans-serif`;
+    ctx.fillStyle = "#111827";
+    ctx.fillText(String(uiData.likes), textX + 40, actionY);
+    ctx.restore();
+
+    drawDislikeIcon(textX + 170, actionY - 12);
+    drawCommentIcon(textX + 300, actionY - 12);
+
+
+    // 프로필 아래 세로 회색선
+    const lineX = avatarCx;
+    const lineTop = baseY + avatarR*2 + 8;
+    const lineBottom = ctx.canvas.height;
+
+    ctx.save();
+    ctx.strokeStyle = "#e5e7eb";
+    ctx.lineWidth = 4;  
+    ctx.lineCap = "butt";
+    ctx.beginPath();
+    ctx.moveTo(lineX, lineTop);
+    ctx.lineTo(lineX, lineBottom);
+    ctx.stroke();
+    ctx.restore();
+  }
+
+  function sanitizeFilename(name) {
+    return String(name)
+      .replace(/[\\\/:*?"<>|]/g, "")
+      .replace(/\s+/g, " ")
+      .trim()
+      .slice(0, 80) || "image";
+  }
+
+  async function render(){
+    const file = $("photo").files?.[0];
+    if(!file){ alert("사진 파일이 필요합니다."); return; }
+
+    const avatarFile = $("avatar").files?.[0] || null;
+
+    const nicknameOnly = ($("place").value || "").trim();
+    const hoursRaw = ($("rating").value || "").trim();
+    const likesRaw = ($("reviews").value || "").trim();
+    const commentRaw = ($("category").value || "").trim();
+
+    if(!nicknameOnly){ alert("닉네임은 필수입니다."); return; }
+    if(!commentRaw){ alert("댓글내용은 필수입니다."); return; }
+
+    const hours = normalizeHours(hoursRaw);
+    const time = timeLabel(hours, currentLang);
+    const likes = normalizeLikes(likesRaw, currentLang);
+
+    const defaultTextEN = "With this layout, the card feels much more natural. The tabs also read as fixed, which is great.";
+    const defaultTextKO = "이 레이아웃이면 카드 느낌이 훨씬 자연스럽게 보입니다. 탭도 고정되어 보여서 좋습니다.";
+
+    const uiData = {
+      nickname: nicknameOnly,
+      time,
+      likes,
+      text: commentRaw || (currentLang === "ko" ? defaultTextKO : defaultTextEN)
+    };
+
+    const img = await loadImageFromFile(file);
+    const avatarImg = avatarFile ? await loadImageFromFile(avatarFile) : null;
+
+    const W = canvas.width;
+    const H = canvas.height;
+
+    const sheetH = Math.round(clamp(H * 0.255, 460, 560));
+    const sheetY = H - sheetH;
+
+    ctx.clearRect(0,0,W,H);
+
+    const photoOverlap = Math.round(clamp(H * 0.065, 80, 140));
+    const photoAreaH = sheetY + photoOverlap;
+
+    const crop = fitCoverAnchored(img.width, img.height, W, photoAreaH, 0.5, 0.5);
+    ctx.drawImage(img, crop.sx, crop.sy, crop.sw, crop.sh, 0, 0, W, photoAreaH);
+
+    // 재생 1/3, 버퍼는 조금 앞
+    drawYouTubeProgressBarAttached(sheetY, 1/3, 0.42);
+
+    ctx.save();
+    ctx.shadowColor="rgba(0,0,0,0.22)";
+    ctx.shadowBlur=40;
+    ctx.shadowOffsetY=-10;
+    fillTopRoundRect(0, sheetY, W, sheetH, 34, "#fff");
+    ctx.restore();
+
+    drawYouTubeCommentsSheet(sheetY, sheetH, currentLang, uiData, avatarImg);
+
+    $("notice").style.display="block";
+    $("dl").disabled=false;
+  }
+
+  function toBlobWithTimeout(canvas, type = "image/png", quality, timeoutMs = 4000) {
+    return new Promise((resolve, reject) => {
+      let done = false;
+
+      const t = setTimeout(() => {
+        if (done) return;
+        done = true;
+        reject(new Error("toBlob timeout"));
+      }, timeoutMs);
+
+      try {
+        canvas.toBlob(
+          (blob) => {
+            if (done) return;
+            done = true;
+            clearTimeout(t);
+            resolve(blob);
+          },
+          type,
+          quality
+        );
+      } catch (e) {
+        if (done) return;
+        done = true;
+        clearTimeout(t);
+        reject(e);
+      }
+    });
+  }
+
+  function safeBaseFilename(raw) {
+    // sanitizeFilename()가 이미 있다고 하셨으니 우선 사용
+    const s = sanitizeFilename((raw || "").trim());
+    // 길이 제한(인앱/공유에서 너무 길면 실패/잘림 방지)
+    return (s || "youtube_comments").slice(0, 60);
+  }
+
+  async function downloadPng() {
+    const base = safeBaseFilename(($("place").value || "").trim());
+    const filename = `${base}_youtube_comments_sheet.png`;
+
+    const ua = navigator.userAgent;
+    const isIOS = /iPad|iPhone|iPod/.test(ua);
+    const isKakao = /KAKAOTALK/i.test(ua);
+    const isMobile = /Android|iPhone|iPad|iPod/i.test(ua);
+
+    // 1) 안드로이드(카카오 제외)에서만 dataURL 우선 시도
+    //    iOS는 여기로 보내지 않습니다.
+    if (isMobile && !isIOS && !isKakao) {
+      try {
+        const dataUrl = canvas.toDataURL("image/png");
+        const a = document.createElement("a");
+        a.href = dataUrl;
+        a.download = filename;
+        a.rel = "noopener";
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        return;
+      } catch (e) {
+        // dataURL 실패 시 blob로 폴백
+      }
+    }
+
+    // 2) blob 생성 (무한대기 방지: 타임아웃 포함)
+    let blob;
+    try {
+      blob = await toBlobWithTimeout(canvas, "image/png", undefined, 4000);
+    } catch (e) {
+      alert("이미지 생성에 실패했습니다. (브라우저 제한 또는 메모리 부족)");
+      return;
+    }
+
+    if (!blob) {
+      alert("이미지 생성에 실패했습니다.");
+      return;
+    }
+
+    // 3) iOS / 카카오 인앱: Share API 우선
+    if ((isIOS || isKakao) && navigator.share) {
+      try {
+        const file = new File([blob], filename, { type: "image/png" });
+        const canShareFiles =
+          !navigator.canShare || navigator.canShare({ files: [file] });
+
+        if (canShareFiles) {
+          await navigator.share({
+            files: [file],
+            title: filename,
+            text: "이미지 저장"
+          });
+          return;
+        }
+      } catch (e) {
+        // 공유 실패 시 다음 단계로
+      }
+    }
+
+    const url = URL.createObjectURL(blob);
+
+    // 4) 데스크톱 / 안드로이드(카카오 제외): 다운로드
+    if (!isIOS && !isKakao) {
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = filename;
+      a.rel = "noopener";
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+
+      // 다운로드 처리 지연 고려
+      setTimeout(() => URL.revokeObjectURL(url), 10000);
+      return;
+    }
+
+    // 5) iOS / 카카오 인앱 최종 폴백: 열어서 길게 눌러 저장
+    //    팝업 차단 대비: open 실패 시 현재 탭 이동
+    const opened = window.open(url, "_blank", "noopener,noreferrer");
+    if (!opened) {
+      window.location.href = url;
+    }
+
+    // 저장까지 시간이 걸릴 수 있어 충분히 늦게 revoke
+    setTimeout(() => URL.revokeObjectURL(url), 60000);
+  }
+
+
+  $("gen").addEventListener("click", ()=>render().catch(e=>alert(e?.message ?? "생성 중 오류")));
+  $("dl").addEventListener("click", downloadPng);
+
+  $("langToggle").addEventListener("click", () => {
+    currentLang = currentLang === "en" ? "ko" : "en";
+    $("langToggle").textContent = currentLang === "en" ? "한국어" : "English";
+    if ($("photo").files?.[0]) render();
+  });
+
+  (function init(){
+    ctx.fillStyle="#fff";
+    ctx.fillRect(0,0,canvas.width,canvas.height);
+    ctx.fillStyle="#6b7280";
+    ctx.font="800 44px system-ui,-apple-system,Segoe UI,Roboto,sans-serif";
+    ctx.fillText("여기에 결과가 표시됩니다.", 80, 160);
+  })();
+</script>
+</body>
+</html>
